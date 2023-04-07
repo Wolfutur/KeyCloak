@@ -3,24 +3,32 @@ package croc.keycloak.custom.flow;
 import org.keycloak.Config;
 import org.keycloak.authentication.Authenticator;
 import org.keycloak.authentication.AuthenticatorFactory;
+import org.keycloak.authentication.ConfigurableAuthenticatorFactory;
+import org.keycloak.authentication.authenticators.conditional.ConditionalAuthenticator;
+import org.keycloak.authentication.authenticators.conditional.ConditionalAuthenticatorFactory;
 import org.keycloak.models.AuthenticationExecutionModel;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.KeycloakSessionFactory;
 import org.keycloak.provider.ProviderConfigProperty;
+import org.keycloak.provider.ProviderConfigurationBuilder;
 
 import java.util.*;
 
 
-public class CrocAuthenticatorFactory implements AuthenticatorFactory {
+public class CrocAuthenticatorFactory implements ConditionalAuthenticatorFactory {
 
-    private static final Authenticator AUTHENTICATOR_INSRANSE = new CrocAuthenticator();
+    private static final ConditionalAuthenticator AUTHENTICATOR_INSRANSE = new CrocAuthenticator();
     private static final String ID = "croc_authenticator";
     private static final  String TYPE = "Croc Authenticator";
     private static final  String HELP_TEXT="Test Croc Authentication flow";
+    public static final String CONFIG_NAME="letter_in_username";
+    /*@Override
+    public Authenticator create(KeycloakSession keycloakSession) {return AUTHENTICATOR_INSRANSE;}*/
 
     @Override
-    public Authenticator create(KeycloakSession keycloakSession) {return AUTHENTICATOR_INSRANSE;}
-
+    public ConditionalAuthenticator getSingleton() {
+        return AUTHENTICATOR_INSRANSE;
+    }
     @Override
     public void init(Config.Scope scope) {
     }
@@ -44,7 +52,7 @@ public class CrocAuthenticatorFactory implements AuthenticatorFactory {
 
     @Override
     public String getReferenceCategory() {
-        return null;
+        return "condition";
     }
 
     @Override
@@ -55,12 +63,13 @@ public class CrocAuthenticatorFactory implements AuthenticatorFactory {
     @Override
     public AuthenticationExecutionModel.Requirement[] getRequirementChoices() {
         return new AuthenticationExecutionModel.Requirement[]
-                {AuthenticationExecutionModel.Requirement.REQUIRED};
+                {AuthenticationExecutionModel.Requirement.REQUIRED,
+                 AuthenticationExecutionModel.Requirement.DISABLED};
     }
 
     @Override
     public boolean isUserSetupAllowed() {
-        return false;
+        return true;
     }
 
     @Override
@@ -70,22 +79,11 @@ public class CrocAuthenticatorFactory implements AuthenticatorFactory {
 
     @Override
     public List<ProviderConfigProperty> getConfigProperties(){
-        ArrayList<ProviderConfigProperty> properties = new ArrayList<>(){
-        };
-        ProviderConfigProperty property1 = new ProviderConfigProperty();
-        property1.setType(ProviderConfigProperty.STRING_TYPE);
-        property1.setName("Property 1");
-        property1.setLabel("Prop 1");
-        property1.setHelpText("Help 1");
-
-        ProviderConfigProperty property2 = new ProviderConfigProperty();
-        property1.setType(ProviderConfigProperty.STRING_TYPE);
-        property1.setName("Property 2");
-        property1.setLabel("Prop 2");
-        property1.setHelpText("Help 2");
-
-        properties.add(property1);
-        properties.add(property2);
-        return properties;
+        return Collections.unmodifiableList(ProviderConfigurationBuilder.create()
+                .property().name(CONFIG_NAME)
+                .label("Substring")
+                .helpText("Substring that should be in username")
+                .type(ProviderConfigProperty.STRING_TYPE).add()
+                .build());
     }
 }
