@@ -1,13 +1,9 @@
-package croc.keycloak.custom.flow;
+package croc.keycloak.custom.flow.authenticator;
 
 import org.keycloak.Config;
-import org.keycloak.authentication.Authenticator;
-import org.keycloak.authentication.AuthenticatorFactory;
-import org.keycloak.authentication.ConfigurableAuthenticatorFactory;
 import org.keycloak.authentication.authenticators.conditional.ConditionalAuthenticator;
 import org.keycloak.authentication.authenticators.conditional.ConditionalAuthenticatorFactory;
 import org.keycloak.models.AuthenticationExecutionModel;
-import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.KeycloakSessionFactory;
 import org.keycloak.provider.ProviderConfigProperty;
 import org.keycloak.provider.ProviderConfigurationBuilder;
@@ -17,7 +13,7 @@ import java.util.*;
 
 public class CrocAuthenticatorFactory implements ConditionalAuthenticatorFactory {
 
-    private static final ConditionalAuthenticator AUTHENTICATOR_INSRANSE = new CrocAuthenticator();
+    private static final ConditionalAuthenticator AUTHENTICATOR_INSTANSE = new CrocAuthenticator();
     private static final String ID = "croc_authenticator";
     private static final  String TYPE = "Croc Authenticator";
     private static final  String HELP_TEXT="Test Croc Authentication flow";
@@ -27,7 +23,7 @@ public class CrocAuthenticatorFactory implements ConditionalAuthenticatorFactory
 
     @Override
     public ConditionalAuthenticator getSingleton() {
-        return AUTHENTICATOR_INSRANSE;
+        return AUTHENTICATOR_INSTANSE;
     }
     @Override
     public void init(Config.Scope scope) {
