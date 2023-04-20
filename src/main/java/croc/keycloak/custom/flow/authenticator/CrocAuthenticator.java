@@ -27,12 +27,21 @@ public class CrocAuthenticator implements ConditionalAuthenticator {
             UserModel user = authenticationFlowContext.getUser();
             String letter = getAllowedLetter(authenticationFlowContext);
             System.out.println("Username "+user.getUsername());
-            System.out.println("Allow letter "+letter);
-            Response challenge = authenticationFlowContext.form()
-                    .createForm("secret-question.ftl");
-            authenticationFlowContext.challenge(challenge);
-
-            return user.getUsername().contains(letter);
+            System.out.println("Allow letter  "+letter);
+            Response challenge=null;
+            if(user.getUsername().contains(letter))
+            {
+                challenge = authenticationFlowContext.form()
+                        .createForm("success.ftl");
+                authenticationFlowContext.challenge(challenge);
+                return true;
+            }
+            else {
+                challenge = authenticationFlowContext.form()
+                        .createForm("fail.ftl");
+                authenticationFlowContext.challenge(challenge);
+                return false;
+            }
         }
         catch (Exception ex)
         {
@@ -44,28 +53,9 @@ public class CrocAuthenticator implements ConditionalAuthenticator {
 
     @Override
     public void action(AuthenticationFlowContext context) {
-        boolean validated = validateAnswer(context);
-        if (!validated) {
-            Response challenge =  context.form()
-                    .setError("badSecret")
-                    .createForm("secret-question.ftl");
-            context.failureChallenge(AuthenticationFlowError.INVALID_CREDENTIALS, challenge);
-            return;
-        }
+        System.out.println("action path");
         context.success();
     }
-
-    protected boolean validateAnswer(AuthenticationFlowContext context) {
-        MultivaluedMap<String, String> formData = context.getHttpRequest().getDecodedFormParameters();
-        String secret = formData.getFirst("secret_answer");
-        String credentialId = formData.getFirst("credentialId");
-        System.out.println(secret);
-        System.out.println(credentialId);
-        UserModel user = context.getUser();
-        String letter = getAllowedLetter(context);
-        return user.getUsername().contains(letter);
-    }
-
 
     @Override
     public boolean requiresUser() {
